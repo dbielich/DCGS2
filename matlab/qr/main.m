@@ -67,8 +67,6 @@
    loglog(x,orth_hh_lvl2,'-s','MarkerSize', 12, 'Color', '#84aff5', 'LineWidth', 2 ); hold on;
    loglog(x,orth_mgs_lvl1,'-^','MarkerSize', 12, 'Color', '#f5e284', 'LineWidth', 2 ); hold on;
    loglog(x,orth_mgs_lvl2,'-s','MarkerSize', 12, 'Color', '#f5e284', 'LineWidth', 2 ); hold on;
-%   loglog(x,orth_mgs_lvl1_backward,'-^','LineWidth', 2, 'color', '#de6f07'); hold on;
-%   loglog(x,orth_mgs_lvl2_backward,'-+','LineWidth', 2, 'color', '#de6f07'); hold on;
    grid on;
    axis([ min(x) max(x) 1e-16 1e2 ]);
    legend('CGS', 'CGS2', 'DCGS2', 'HH lvl1', 'HH lvl2', 'MGS lvl1', 'MGS lvl2','Location','east');
