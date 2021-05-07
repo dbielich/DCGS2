@@ -27,8 +27,14 @@ extern int mpi_check_manteuffel_arnoldi_repres( MPI_Comm mpi_comm, double *norm_
 extern int mpi_orth_hh_lvl1_manysynch_append1( MPI_Comm mpi_comm, int mloc, int i, double *A, int lda, double *tau, double *q, double *r );
 extern int mpi_orth_hh_lvl2_fivesynch_append1( MPI_Comm mpi_comm, int mloc, int j, double *A, int lda, double *T, int ldt, double *q, double *r );
 extern int mpi_orth_mgs_lvl1_manysynch_append1(int mloc, int i, double *A, int lda, double *r, MPI_Comm mpi_comm);
-extern int mpi_orth_mgs_lvl2_threesynch_append1(int mloc, int i, double *A, int lda, double *T, int ldt, double *r, MPI_Comm mpi_comm);
+extern int mpi_orth_mgs_lvl2_icwy_threesynch_append1(int mloc, int i, double *A, int lda, double *T, int ldt, double *r, MPI_Comm mpi_comm);
+extern int mpi_orth_mgs_lvl2_cwy_threesynch_append1(int mloc, int i, double *A, int lda, double *T, int ldt, double *r, MPI_Comm mpi_comm);
 extern int mpi_orth_cgs_twosynch_append1(int mloc, int i, double *A, int lda, double *r, MPI_Comm mpi_comm);
 extern int mpi_orth_cgs2_threesynch_append1(int mloc, int i, double *A, int lda, double *r, double *h, MPI_Comm mpi_comm);
+extern int mpi_orth_dcgs2_onesynch_append1_arnoldi( int mloc, int j, double *Q, int ldq, double *H, int ldh, double *work, MPI_Comm mpi_comm);
+extern int mpi_orth_dcgs2_onesynch_cleanup_append1_arnoldi( int mloc, int j, double *Q, int ldq, double *H, int ldh, double *work, MPI_Comm mpi_comm);
 extern int mpi_orth_dcgs2_onesynch_append1_qr( int mloc, int j, double *Q, int ldq, double *R, int ldr, double *work, MPI_Comm mpi_comm);
 extern int mpi_orth_dcgs2_onesynch_cleanup_append1_qr( int mloc, int j, double *Q, int ldq, double *R, int ldr, double *work, MPI_Comm mpi_comm);
+extern int mpi_orth_dcgs2_hrt_onesynch_append1_arnoldi( int mloc, int j, double *W, int ldw, double *U, int ldu, double *Q, int ldq, double *H, int ldh, double *C, int ldc, double *rho, double *work, MPI_Comm mpi_comm);
+extern int mpi_orth_dcgs2_hrt_onesynch_cleanup_append1_arnoldi( int mloc, int j, double *W, int ldw, double *U, int ldu, double *Q, int ldq, double *H, int ldh, double *C, int ldc, double *rho, double *work, MPI_Comm mpi_comm);
+

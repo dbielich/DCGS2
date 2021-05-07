@@ -1,0 +1,37 @@
+
+include ../../make.inc
+ 
+all: xmpi_main_arnoldi_cgs.exe xmpi_main_arnoldi_cgs2.exe xmpi_main_arnoldi_dcgs2.exe xmpi_main_arnoldi_dcgs2_hrt.exe xmpi_main_arnoldi_hh_lvl1.exe xmpi_main_arnoldi_hh_lvl2.exe xmpi_main_arnoldi_mgs_lvl1.exe xmpi_main_arnoldi_mgs_lvl2_icwy.exe xmpi_main_arnoldi_mgs_lvl2_cwy.exe
+
+xmpi_main_arnoldi_cgs.exe: mpi_main_arnoldi_cgs.o ../../orth_scheme/mpi_orth_cgs_twosynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o  ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o 
+	$(LOADER) -o $@    mpi_main_arnoldi_cgs.o ../../orth_scheme/mpi_orth_cgs_twosynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_cgs2.exe: mpi_main_arnoldi_cgs2.o ../../orth_scheme/mpi_orth_cgs2_threesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o
+	$(LOADER) -o $@     mpi_main_arnoldi_cgs2.o ../../orth_scheme/mpi_orth_cgs2_threesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_dcgs2.exe: mpi_main_arnoldi_dcgs2.o ../../orth_scheme/mpi_orth_dcgs2_onesynch_append1_arnoldi.o ../../orth_scheme/mpi_orth_dcgs2_onesynch_cleanup_append1_arnoldi.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o 
+	$(LOADER) -o $@      mpi_main_arnoldi_dcgs2.o ../../orth_scheme/mpi_orth_dcgs2_onesynch_append1_arnoldi.o ../../orth_scheme/mpi_orth_dcgs2_onesynch_cleanup_append1_arnoldi.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_dcgs2_hrt.exe: mpi_main_arnoldi_dcgs2_hrt.o ../../orth_scheme/mpi_orth_dcgs2_hrt_onesynch_append1_arnoldi.o ../../orth_scheme/mpi_orth_dcgs2_hrt_onesynch_cleanup_append1_arnoldi.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o
+	$(LOADER) -o $@          mpi_main_arnoldi_dcgs2_hrt.o ../../orth_scheme/mpi_orth_dcgs2_hrt_onesynch_append1_arnoldi.o ../../orth_scheme/mpi_orth_dcgs2_hrt_onesynch_cleanup_append1_arnoldi.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_hh_lvl1.exe: mpi_main_arnoldi_hh_lvl1.o ../../orth_scheme/mpi_orth_hh_lvl1_manysynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o
+	$(LOADER) -o $@        mpi_main_arnoldi_hh_lvl1.o ../../orth_scheme/mpi_orth_hh_lvl1_manysynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_hh_lvl2.exe: mpi_main_arnoldi_hh_lvl2.o ../../orth_scheme/mpi_orth_hh_lvl2_fivesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o
+	$(LOADER) -o $@        mpi_main_arnoldi_hh_lvl2.o ../../orth_scheme/mpi_orth_hh_lvl2_fivesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_mgs_lvl1.exe: mpi_main_arnoldi_mgs_lvl1.o ../../orth_scheme/mpi_orth_mgs_lvl1_manysynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o
+	$(LOADER) -o $@         mpi_main_arnoldi_mgs_lvl1.o ../../orth_scheme/mpi_orth_mgs_lvl1_manysynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_mgs_lvl2_icwy.exe: mpi_main_arnoldi_mgs_lvl2_icwy.o ../../orth_scheme/mpi_orth_mgs_lvl2_icwy_threesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o 
+	$(LOADER) -o $@              mpi_main_arnoldi_mgs_lvl2_icwy.o ../../orth_scheme/mpi_orth_mgs_lvl2_icwy_threesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+xmpi_main_arnoldi_mgs_lvl2_cwy.exe: mpi_main_arnoldi_mgs_lvl2_cwy.o ../../orth_scheme/mpi_orth_mgs_lvl2_cwy_threesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o 
+	$(LOADER) -o $@             mpi_main_arnoldi_mgs_lvl2_cwy.o ../../orth_scheme/mpi_orth_mgs_lvl2_cwy_threesynch_append1.o ../../checks/mpi_check_qq_orth.o ../../checks/mpi_check_manteuffel_arnoldi_repres.o ../../matvec/mpi_matvec_manteuffel_M.o ../../matvec/mpi_matvec_manteuffel_N.o ../../matvec/mpi_matvec_manteuffel_N_nblock_eo.o ../../matvec/mpi_matvec_manteuffel_M_nblock_eo.o $(LIB)
+
+.c.o:
+	$(CC) $(OPTS) -I$(INCLUDE) -c -o $@ $<
+
+clean:
+	rm -f *o *exe ../../orth_scheme/*o ../../checks/*o ../../matvec/*o 

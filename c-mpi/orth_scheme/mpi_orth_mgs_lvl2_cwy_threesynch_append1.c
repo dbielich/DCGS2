@@ -1,6 +1,6 @@
 #include "../c-mpi.h"
 
-int mpi_orth_mgs_lvl2_threesynch_append1(int mloc, int i, double *A, int lda, double *T, int ldt, double *r, MPI_Comm mpi_comm){
+int mpi_orth_mgs_lvl2_cwy_threesynch_append1(int mloc, int i, double *A, int lda, double *T, int ldt, double *r, MPI_Comm mpi_comm){
 
 	if( i == 0){
 
