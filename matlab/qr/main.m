@@ -3,9 +3,9 @@
    clear
 %
    oldpath = path;
-   path('../orth/',oldpath)  
+   path('../orth/',oldpath)
    oldpath = path;
-   path('../matrix_market/',oldpath)  
+   path('../matrix_market/',oldpath)
 %
    m = 500;
    n = 100;
@@ -34,7 +34,7 @@
    i = 0;
    for log10KA = range_log10KA;
       i = i+1;
-%	   
+%
       U = randn(m,n); [U,~]=qr(U,0);
       V = randn(n,n); [V,~]=qr(V,0);
       S = diag( 10.^( linspace( 0, log10KA, n ) ) );
@@ -50,8 +50,8 @@
      [ Q, R ] = qr__orth_hh_lvl2          ( A ); [ repres_hh_lvl2(i),           orth_hh_lvl2(i),           s_hh_lvl2(i) ]           = qr__orth_stabilitymetric( A, Q, R ); clear Q R;
      [ Q, R ] = qr__orth_mgs_lvl1         ( A ); [ repres_mgs_lvl1(i),          orth_mgs_lvl1(i),          s_mgs_lvl1(i) ]          = qr__orth_stabilitymetric( A, Q, R ); clear Q R;
      [ Q, R ] = qr__orth_mgs_lvl2         ( A ); [ repres_mgs_lvl2(i),          orth_mgs_lvl2(i),          s_mgs_lvl2(i) ]          = qr__orth_stabilitymetric( A, Q, R ); clear Q R;
-     [ Q, R ] = qr__orth_mgs_lvl1_backward( A ); [ repres_mgs_lvl1_backward(i), orth_mgs_lvl1_backward(i), s_mgs_lvl1_backward(i) ] = qr__orth_stabilitymetric( A, Q, R ); clear Q R;
-     [ Q, R ] = qr__orth_mgs_lvl2_backward( A ); [ repres_mgs_lvl2_backward(i), orth_mgs_lvl2_backward(i), s_mgs_lvl2_backward(i) ] = qr__orth_stabilitymetric( A, Q, R ); clear Q R;
+     %[ Q, R ] = qr__orth_mgs_lvl1_backward( A ); [ repres_mgs_lvl1_backward(i), orth_mgs_lvl1_backward(i), s_mgs_lvl1_backward(i) ] = qr__orth_stabilitymetric( A, Q, R ); clear Q R;
+     %[ Q, R ] = qr__orth_mgs_lvl2_backward( A ); [ repres_mgs_lvl2_backward(i), orth_mgs_lvl2_backward(i), s_mgs_lvl2_backward(i) ] = qr__orth_stabilitymetric( A, Q, R ); clear Q R;
 %
    end
 %
@@ -73,8 +73,8 @@
    title({'Orthogonality Comparison, QR factorization','m = 500, n = 100'}, 'FontWeight', 'bold');
    xlabel('Condition Number of Input Matrix', 'FontWeight', 'bold')
    ylabel('Level of Orthogonality, || I - Q^T Q ||_f_r_o', 'FontWeight', 'bold')
-   set(gca,'FontSize',12);   
-   set(gca,'FontWeight','bold');   
+   set(gca,'FontSize',12);
+   set(gca,'FontWeight','bold');
 %
    figure
    ax = axes;
@@ -94,6 +94,6 @@
    title({'Representativity Comparison, QR factorization','m = 500, n = 100'}, 'FontWeight', 'bold');
    xlabel('Condition Number of Input Matrix', 'FontWeight', 'bold')
    ylabel('Level of Representativity, || A - Q R ||_f_r_o / || A ||_f_r_o', 'FontWeight', 'bold')
-   set(gca,'FontSize',12);   
-   set(gca,'FontWeight','bold');   
+   set(gca,'FontSize',12);
+   set(gca,'FontWeight','bold');
 
