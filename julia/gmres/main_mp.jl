@@ -29,6 +29,7 @@ configs = [
     (Float64, Float64, Float16, Float32, Float64),   # asymmetric: F16 push, F32 pop
     (Float64, Float64, Float64, Float32, Float64),   # asymmetric: F64 push, F32 pop
     (Float64, Float64, Float32, Float64, Float64),   # asymmetric: F32 push, F64 pop
+    (Float32, Float64, Float64, Float32, Float64),   # F32 store, F64 work/push, F32 pop
 ]
 
 lbl(Ts, Tw, Tpu, Tpo, Tc) =
@@ -51,8 +52,8 @@ for (Ts, Tw, Tpu, Tpo, Tc) in configs
 end
 println("="^80)
 
-styles = [:solid, :dash, :dot, :dashdot, :solid, :dash, :dot, :dashdot, :solid, :dash]
-colors = [:black, :blue, :red, :green, :cyan, :orange, :purple, :brown, :pink, :teal]
+styles = [:solid, :dash, :dot, :dashdot, :solid, :dash, :dot, :dashdot, :solid, :dash, :solid]
+colors = [:black, :blue, :red, :green, :cyan, :orange, :purple, :brown, :pink, :teal, :magenta]
 
 p1 = plot(title="Projected Krylov Residual", xlabel="Iteration",
           ylabel="Residual / ||b||", yscale=:log10, legend=:outerright)

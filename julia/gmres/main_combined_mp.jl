@@ -109,6 +109,7 @@ comb_configs = [
     (SCHEDULE_HIGH_LOW, :high2low, 1.0, Float32, Float32, Float32, Float32, Float32),  # hi→lo, F32 store, F32 push/pop
     (SCHEDULE_HIGH_LOW, :high2low, 1.0, Float32, Float32, Float32, Float64, Float32),  # hi→lo, F32 store, F32 push F64 pop
     (SCHEDULE_HIGH_LOW, :high2low, 1.0, Float32, Float32, Float64, Float32, Float32),  # hi→lo, F32 store, F64 push F32 pop
+    (SCHEDULE_HIGH_LOW, :high2low, 1.0, Float32, Float64, Float64, Float32, Float64),  # hi→lo, F32 store F64 work, F64 push F32 pop
 ]
 comb_lbl(sched, Ts, Tpu, Tpo) =
     "$(sched===SCHEDULE_HIGH_LOW ? "hi→lo" : "F64") s=$(fn(Ts)) push=$(fn(Tpu)) pop=$(fn(Tpo))"
