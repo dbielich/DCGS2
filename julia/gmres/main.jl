@@ -1,6 +1,7 @@
 include("restarted_gmres.jl")
 include("relaxed_gmres.jl")
 include("relaxed_gmres_low.jl")
+include("relaxed_gmres_schedule.jl")
 using LinearAlgebra, SparseArrays, Plots, Random
 
 # count occurrences of each format without StatsBase
@@ -8,8 +9,59 @@ countmap(v) = Dict(k => count(==(k), v) for k in unique(v))
 
 demo_nilpotent = false  # bidiagonal nilpotent: too easy for GMRES(m), restarts recover cheaply
 demo_grcar     = false  # Grcar matrix: reliable stagnation due to pseudospectrum surrounding origin
+demo_schedule  = true  # custom precision schedule array comparison
 
-if demo_grcar
+if demo_schedule
+    # Custom precision schedule: define an array of (thresh_floor, Type) pairs.
+    # thresh = eta * rel_res; first pair where thresh >= floor determines the format.
+    # Add BFloat16 via: using BFloat16s; then include (1e-2, BFloat16) in a schedule.
+    Random.seed!(42)
+    n  = 60
+    A  = diagm(0  =>  ones(n),
+           1  =>  ones(n-1),
+           2  =>  ones(n-2),
+           3  =>  ones(n-3),
+           -1 => -ones(n-1))
+    b  = randn(n); x0 = zeros(n)
+    max_iter = 400; restart = 400; tol = 1e-10; eta = 1.0
+
+    schedules = [
+        ("high→low  [F64,F32,F16]", SCHEDULE_HIGH_LOW),
+        ("low→high  [F16,F32,F64]", SCHEDULE_LOW_HIGH),
+        ("mid-only  [F64,F32]", [(4.88e-4, Float64), (-Inf, Float32)]),
+        ("F32 always",              [(-Inf, Float32)]),
+        ("F64 always",              [(-Inf, Float64)]),
+    ]
+
+    println("\n── Custom schedule comparison ─────────────────────────────────────────")
+    println("  n=$n  restart=$restart  tol=$tol  eta=$eta")
+    println("  Schedule                     residual   iters  formats")
+    println("  " * "─"^60)
+    styles = [:solid, :dash, :dot, :dashdot, :solid, :dash, :dot, :dashdot]
+    colors = [:black, :blue, :red, :green, :cyan, :orange, :purple, :brown]
+    nrm_b  = norm(b)
+
+    p  = plot(; yscale=:log10, title="Projected Krylov Residual",
+               xlabel="Iteration", ylabel="Residual / ||b||", legend=:topright)
+    p2 = plot(; yscale=:log10, title="True Residual  ||b - Ax|| / ||b||",
+               xlabel="Iteration", ylabel="",               legend=:topright)
+
+    for (i, (lbl, sched)) in enumerate(schedules)
+        _, errs, terrs, _, fmts = relaxed_gmres_schedule(A, b, x0, max_iter, restart, tol, eta, sched)
+        res = terrs[end] / nrm_b
+        @printf("  %-28s  %.2e  %4d   %s\n", lbl, res, length(terrs)-1,
+                join(["$(f):$(count(==(f),fmts))" for f in unique(fmts)], " "))
+        plot!(p,  0:length(errs)-1,  errs  ./ nrm_b, label=lbl, lw=2, ls=styles[i], color=colors[i])
+        plot!(p2, 0:length(terrs)-1, terrs ./ nrm_b, label=lbl, lw=2, ls=styles[i], color=colors[i])
+    end
+    hline!(p,  [4.88e-4], ls=:dot, color=:grey,  label="Float16 floor", lw=1)
+    hline!(p,  [tol],     ls=:dash, color=:black, label="tol",           lw=1)
+    hline!(p2, [4.88e-4], ls=:dot, color=:grey,  label="Float16 floor", lw=1)
+    hline!(p2, [tol],     ls=:dash, color=:black, label="tol",           lw=1)
+    display(plot(p, p2, layout=(1, 2), size=(1200, 500),
+                 plot_title="Custom schedules  |  n=$n, restart=$restart, tol=$tol"))
+
+elseif demo_grcar
     n  = 60
     # non-normal Toeplitz: eigenvalues in an annulus, pseudospectrum wraps around 0
     A  = diagm(0  =>  ones(n),
@@ -21,9 +73,9 @@ if demo_grcar
     x0 = zeros(n)
     tol = 1e-10
 
-    _, err_full  = restarted_gmres(A, b, x0, n*3,  n, tol)
-    _, err_r5    = restarted_gmres(A, b, x0, n*30, 5, tol)
-    _, err_r15   = restarted_gmres(A, b, x0, n*10, 15, tol)
+    _, err_full, _, _  = restarted_gmres(A, b, x0, n*3,  n, tol)
+    _, err_r5, _, _    = restarted_gmres(A, b, x0, n*30, 5, tol)
+    _, err_r15, _, _   = restarted_gmres(A, b, x0, n*10, 15, tol)
 
     println("Full GMRES  final residual: ", err_full[end]  / norm(b), " (", length(err_full)-1,  " iters)")
     println("GMRES(5)    final residual: ", err_r5[end]    / norm(b), " (", length(err_r5)-1,    " iters)")
@@ -44,8 +96,8 @@ elseif demo_nilpotent
     x0      = zeros(n)
     tol     = 1e-10
 
-    _, err_full      = restarted_gmres(A, b, x0, n,    n,  tol)
-    _, err_restarted = restarted_gmres(A, b, x0, n*5, 10,  tol)
+    _, err_full, _, _      = restarted_gmres(A, b, x0, n,    n,  tol)
+    _, err_restarted, _, _ = restarted_gmres(A, b, x0, n*5, 10,  tol)
 
     println("Full GMRES   final residual: ", err_full[end]      / norm(b), " (", length(err_full)-1,      " iters)")
     println("GMRES(10)    final residual: ", err_restarted[end]  / norm(b), " (", length(err_restarted)-1, " iters)")
@@ -59,60 +111,48 @@ elseif demo_nilpotent
 else
     Random.seed!(42)
     n  = 60
-    # Symmetric positive definite: eigenvalues log-spaced in [1, 100], cond = 100.
-    # Full GMRES converges in ~90 steps; GMRES(15) in ~150-250 steps.
-    F  = qr(randn(n, n))
-    Q  = Matrix(F.Q)
-    S  = Diagonal(10 .^ LinRange(0, 2, n))
-    A  = Q * Matrix(S) * Q'
-    
-    n  = 60
-    # non-normal Toeplitz: eigenvalues in an annulus, pseudospectrum wraps around 0
     A  = diagm(0  =>  ones(n),
                1  =>  ones(n-1),
                2  =>  ones(n-2),
                3  =>  ones(n-3),
                -1 => -ones(n-1))
+    b  = randn(n); x0 = zeros(n)
 
-    b  = randn(n)
-    x0 = zeros(n)
-
-    max_iter = 400
-    restart  = 400
-    tol      = 1e-10
+    max_iter = 400; restart = 400; tol = 1e-10; eta = 1.0
+    nrm_b = norm(b)
 
     fmtstr(fmts) = join(["$(f):$(count(==(f), fmts))" for f in unique(fmts)], "  ")
 
-    x,     errors,          true_errors    = restarted_gmres(A, b, x0, max_iter, restart, tol)
-    println("Float64 only     : residual=$(round(norm(b.-A*x)/norm(b),    sigdigits=3))  iters=$(length(errors)-1)")
+    x, errors, true_errors, _ = restarted_gmres(A, b, x0, max_iter, restart, tol)
+    println("Float64 only     : n=$n restart=$restart  residual=$(round(norm(b.-A*x)/nrm_b, sigdigits=3))  iters=$(length(errors)-1)")
 
-    x_hi, errors_hi, fmts_hi, true_errors_hi = relaxed_gmres(A, b, x0, max_iter, restart, tol, 1)
-    println("Relaxed high→low : residual=$(round(norm(b.-A*x_hi)/norm(b), sigdigits=3))  iters=$(length(errors_hi)-1)  $(fmtstr(fmts_hi))")
+    _, errs_hi, terrs_hi, _, fmts_hi = relaxed_gmres_schedule(
+        A, b, x0, max_iter, restart, tol, eta, SCHEDULE_HIGH_LOW)
+    println("high→low  sched  : n=$n restart=$restart  residual=$(round(terrs_hi[end]/nrm_b, sigdigits=3))  iters=$(length(errs_hi)-1)  $(fmtstr(fmts_hi))")
 
-    x_lo, errors_lo, fmts_lo, true_errors_lo = relaxed_gmres_low(A, b, x0, max_iter, restart, tol, 1)
-    println("Relaxed low→high : residual=$(round(norm(b.-A*x_lo)/norm(b), sigdigits=3))  iters=$(length(errors_lo)-1)  $(fmtstr(fmts_lo))")
+    _, errs_lo, terrs_lo, _, fmts_lo = relaxed_gmres_schedule(
+        A, b, x0, max_iter, restart, tol, eta, SCHEDULE_LOW_HIGH)
+    println("low→high  sched  : n=$n restart=$restart  residual=$(round(terrs_lo[end]/nrm_b, sigdigits=3))  iters=$(length(errs_lo)-1)  $(fmtstr(fmts_lo))")
 
-    # left: projected Krylov residuals (what GMRES minimises each step)
-    p = plot(0:length(errors)-1,    errors    ./ norm(b),
+    p = plot(0:length(errors)-1,   errors   ./ nrm_b,
              yscale=:log10, label="Float64 only", lw=2)
-    plot!(p, 0:length(errors_hi)-1, errors_hi ./ norm(b), label="high→low", lw=2)
-    plot!(p, 0:length(errors_lo)-1, errors_lo ./ norm(b), label="low→high",  lw=2)
-    hline!(p, [4.88e-4], ls=:dot,  color=:grey,  label="Float16 floor")
+    plot!(p, 0:length(errs_hi)-1, errs_hi ./ nrm_b, label="high→low", lw=2)
+    plot!(p, 0:length(errs_lo)-1, errs_lo ./ nrm_b, label="low→high", lw=2)
+    hline!(p, [4.88e-4], ls=:dot, color=:grey,  label="Float16 floor")
     hline!(p, [tol],     ls=:dash, color=:black, label="tol")
     xlabel!(p, "Iteration"); ylabel!(p, "Projected Residual / ||b||")
     title!(p, "Projected Krylov Residual")
 
-    # right: true residual at every inner step — same x-axis, same point count
-    p2 = plot(0:length(true_errors)-1,    true_errors    ./ norm(b),
+    p2 = plot(0:length(true_errors)-1,  true_errors ./ nrm_b,
               yscale=:log10, label="Float64 only", lw=2)
-    plot!(p2, 0:length(true_errors_hi)-1, true_errors_hi ./ norm(b), label="high→low", lw=2)
-    plot!(p2, 0:length(true_errors_lo)-1, true_errors_lo ./ norm(b), label="low→high",  lw=2)
+    plot!(p2, 0:length(terrs_hi)-1, terrs_hi ./ nrm_b, label="high→low", lw=2)
+    plot!(p2, 0:length(terrs_lo)-1, terrs_lo ./ nrm_b, label="low→high", lw=2)
     hline!(p2, [4.88e-4], ls=:dot,  color=:grey,  label="Float16 floor")
     hline!(p2, [tol],     ls=:dash, color=:black, label="tol")
     xlabel!(p2, "Iteration"); ylabel!(p2, "True Residual / ||b||")
-    title!(p2, "True Residual (||b - Ax|| / ||b||)")
+    title!(p2, "True Residual  ||b - Ax|| / ||b||")
 
     display(plot(p, p2, layout=(1, 2), size=(1200, 500),
-                 plot_title="n=$n, restart=$restart, tol=$tol"))
+                 plot_title="n=$n, restart=$restart, tol=$tol  (schedule-based)"))
 end
 

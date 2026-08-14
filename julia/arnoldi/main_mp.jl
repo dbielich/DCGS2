@@ -10,7 +10,7 @@ b = randn(m)
 A = sparse(A)
 
 configs = [
-    # (label,                         T_store,  T_apply,  T_reflect)
+    # (label,                         T_store,  T_apply,  T_construct)
     ("F64 all (baseline)",            Float64,  Float64,  Float64),
     ("F32 store / F64 apply (Tisseur)",Float32, Float64,  Float64),   # cheap storage, accurate application
     ("F64 store / F32 apply",         Float64,  Float32,  Float64),   # accurate storage, cheap application
@@ -29,7 +29,7 @@ println("="^70)
 
 for (lbl, Ts, Ta, Tr) in configs
     Q, H, beta = arnoldi__orth_hh_lvl1_mp(A, b, k;
-                                           T_store=Ts, T_apply=Ta, T_reflect=Tr)
+                                           T_store=Ts, T_push=Ta, T_pop=Ta, T_construct=Tr)
     repres, orth, _, _ = arnoldi__orth_stabilitymetric(A, b, Q, H, beta)
     push!(labels, lbl)
     push!(orth_vals, orth)

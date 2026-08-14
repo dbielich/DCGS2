@@ -10,9 +10,10 @@ function restarted_gmres(A, b::AbstractVector, x0::AbstractVector,
     beta = norm(r)
     errors      = [beta]
     true_errors = [beta]
+    orth_history = [0.0]
 
     if beta < tol * nrm_b
-        return x, errors, true_errors
+        return x, errors, true_errors, orth_history
     end
 
     iter = 0
@@ -26,8 +27,9 @@ function restarted_gmres(A, b::AbstractVector, x0::AbstractVector,
         r = b .- A * x
         beta = norm(r)
         if iter > 0
-            push!(errors,      beta)
-            push!(true_errors, beta)
+            push!(errors,       beta)
+            push!(true_errors,  beta)
+            push!(orth_history, 0.0)
         end
         Q[:, 1], tau[1], h_init, V[:, 1] = orth_hh_lvl1(V[:, 1:0], tau[1:0], r)
 
@@ -46,6 +48,7 @@ function restarted_gmres(A, b::AbstractVector, x0::AbstractVector,
             res_norm = norm(H_sub * y .- g_sub)
             push!(errors, res_norm)
             push!(true_errors, norm(b .- A * (x .+ Q[:, 1:j] * y)))
+            push!(orth_history, norm(Matrix(I, j+1, j+1) - Q[:, 1:j+1]' * Q[:, 1:j+1]))
 
             if res_norm < tol * nrm_b
                 m = j
@@ -63,5 +66,5 @@ function restarted_gmres(A, b::AbstractVector, x0::AbstractVector,
         end
     end
 
-    return x, errors, true_errors
+    return x, errors, true_errors, orth_history
 end
