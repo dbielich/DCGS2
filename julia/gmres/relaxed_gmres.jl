@@ -1,22 +1,24 @@
 include("../orth/orth_hh_lvl1.jl")
 using LinearAlgebra
 
-# Inexact restarted GMRES with adaptive-precision matvec.
-# eta: relaxation strength in [0,1]. 0 = pure Float64. Requires a package
-# capable of representing reduced precision (e.g. BFloat16s.jl, Float16 built-in).
+# Inexact restarted GMRES: HIGH precision early, LOWER precision as convergence occurs.
+# Mirrors relaxed_gmres_low.jl: same budget = eta*rel_res and same unit-roundoff thresholds,
+# but format assignment is reversed — Float64 when budget is large (residual large),
+# Float16 when budget is small (residual small). Float16 will stall for tol < Float16 eps.
 # Theory: Simoncini & Szyld (2003), SIAM J. Sci. Comput. 25(2), 454-477.
 function relaxed_gmres(A, b::AbstractVector, x0::AbstractVector,
-                        max_iter::Int, restart::Int, tol::Real, eta::Real)
+                        max_iter::Int, restart::Int, tol::Real, eta::Real = 1.0)
     n = length(b)
     nrm_b = norm(b)
     x = copy(x0)
     r = b .- A * x
     beta = norm(r)
-    errors  = [beta]
-    formats = String[]
+    errors      = [beta]
+    true_errors = [beta]
+    formats     = String[]
 
     if beta < tol * nrm_b
-        return x, errors, formats
+        return x, errors, formats, true_errors
     end
 
     iter = 0
@@ -31,6 +33,10 @@ function relaxed_gmres(A, b::AbstractVector, x0::AbstractVector,
 
         r = b .- A * x
         beta = norm(r)
+        if iter > 0
+            push!(errors,      beta)
+            push!(true_errors, beta)
+        end
         Q[:, 1], tau[1], h_init, V[:, 1] = orth_hh_lvl1(V[:, 1:0], tau[1:0], r)
 
         g = zeros(m + 1)
@@ -50,6 +56,7 @@ function relaxed_gmres(A, b::AbstractVector, x0::AbstractVector,
 
             res_norm = norm(H_sub * y .- g_sub)
             push!(errors, res_norm)
+            push!(true_errors, norm(b .- A * (x .+ Q[:, 1:j] * y)))
             res_prev = res_norm
 
             if res_norm < tol * nrm_b
@@ -61,22 +68,25 @@ function relaxed_gmres(A, b::AbstractVector, x0::AbstractVector,
         y = H[1:m+1, 1:m] \ g[1:m+1]
         x .+= Q[:, 1:m] * y
 
-        if errors[end] < tol * nrm_b
+        true_res = norm(b .- A * x)
+        push!(true_errors, true_res)
+        if true_res < tol * nrm_b
             break
         end
     end
 
-    return x, errors, formats
+    return x, errors, formats, true_errors
 end
 
 function matvec_relaxed(A, q::AbstractVector, eta::Real, rel_res::Real)
-    # Format unit roundoffs: Float16 u≈4.88e-4, Float32 u≈5.96e-8, Float64 u≈1.11e-16
+    # Mirror of matvec_relaxed_low: same budget and thresholds, reversed format order.
+    # Float16 u≈4.88e-4, Float32 u≈5.96e-8, Float64 u≈1.11e-16
     budget = eta * rel_res
-    if budget >= 4.88e-4
-        return Float64.(Float16.(A) * Float16.(q)), "Float16"
-    elseif budget >= 5.96e-8
-        return Float64.(Float32.(A) * Float32.(q)), "Float32"
-    else
+    if budget >= 4.88e-4        # large residual → full precision
         return A * q, "Float64"
+    elseif budget >= 5.96e-8    # converging → reduce to Float32
+        return Float64.(Float32.(A) * Float32.(q)), "Float32"
+    else                         # near tol → Float16 (will stall if tol < Float16 eps)
+        return Float64.(Float16.(A) * Float16.(q)), "Float16"
     end
 end
