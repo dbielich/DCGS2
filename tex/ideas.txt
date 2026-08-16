@@ -1,0 +1,6 @@
+
+(*) in Julia use BigFloat to have many types, we can also push to 128, 256 bit
+to make stury more relevant.
+
+(*) possibility to study as well with restart and then the outer scheme can be
+iterative refinement or GMRES or FGMRES or GCR
