@@ -1,6 +1,47 @@
 
+======================================================================
+== This paper - Not ideas but TODOs!
+======================================================================
+
+(*) we need to study just an orthogonalization A = QR using these ideas, 
+that's how we start, this needs to be done
+
+(*) we need to read
+Emmanuel Agullo, Luc Giraud, Pierre Jolivet, Theo Mary, Alexandre Tabouret. Doubly adaptive precision restarted GMRES. 2026. ⟨hal-05640635⟩
+https://hal.science/hal-05640635/document
+We are bouncing off this paper and improving it
+
+(*) We are also building off:
+Z. Zhou, F. Tisseur, M. Webb, Computing accurate singular values
+using a mixed-precision one-sided Jacobi algorithm
+arXiv:2602.18134, 2026.
+
 (*) in Julia use BigFloat to have many types, we can also push to 128, 256 bit
 to make stury more relevant.
 
 (*) possibility to study as well with restart and then the outer scheme can be
 iterative refinement or GMRES or FGMRES or GCR
+
+======================================================================
+== A paper
+======================================================================
+
+(*) We should study eigenvalues too and Arnoldi!
+
+======================================================================
+== A paper
+======================================================================
+
+(*) What really excites me is next step: SPD matrices. And maybe normal
+matrices to a lesser extent. So in short A-orthogonality is symmetry. By having 
+a way to enforce A-orthogonality to hih accuracy, I believe we will have 
+way better (aka faster) convergence. So for example, we can (and we should!)
+try to do a 32-bit matvec (with symmetric A) but we reorthogonalize in 64-bit. 
+I think this is not silly and we have faster speed. But now the beauty is that 
+we can do 32-bit matvec, store vector in 32-bit, but have an accurate orth schemes
+that accelerate convergence. There are two steps: (1) we work with GMRES for (nonsymmetric) normal
+matrices, and we see how that works, (2) we think hard and try to make this work for 
+Lanczos / CG. That would be cool! We need to look at: 
+https://arxiv.org/abs/2104.04180
+I think the work of Meiyue Shao is key to make this work
+
