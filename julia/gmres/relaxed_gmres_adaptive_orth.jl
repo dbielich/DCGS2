@@ -69,6 +69,7 @@ function relaxed_gmres_adaptive_orth(A, b::AbstractVector, x0::AbstractVector,
             T_mv   = select_format(eta, rel_res, mv_schedule)
             T_push = select_format(eta, rel_res, orth_push_schedule)
             T_pop  = select_format(eta, rel_res, orth_pop_schedule)
+            print("iter=$iter, j=$j, rel_res=$(round(rel_res, sigdigits=3)), T_mv=$(_fn(T_mv)), T_push=$(_fn(T_push)), T_pop=$(_fn(T_pop))\n")
 
             w, _ = matvec_typed(A, Q[:, j], T_mv)
             push!(mv_fmts, _fn(T_mv))

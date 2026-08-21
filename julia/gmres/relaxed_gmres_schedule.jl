@@ -18,7 +18,7 @@ using LinearAlgebra
 # Any type T can appear in the schedule provided T.(array) and T arithmetic work.
 # On Apple Silicon (M-series), Float16 is hardware-accelerated (native NEON FP16).
 # BFloat16 is available via BFloat16s.jl and works the same way.
-
+#
 const SCHEDULE_HIGH_LOW = [(4.88e-4, Float64), (5.96e-8, Float32), (-Inf, Float16)]
 const SCHEDULE_LOW_HIGH = [(4.88e-4, Float16), (5.96e-8, Float32), (-Inf, Float64)]
 
